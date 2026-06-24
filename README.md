@@ -16,14 +16,7 @@ This application is a single-admin IT support web application featuring a Micros
    npm install
    ```
 3. **Configure Environment Variables**:
-   Create a `.env` file in the root directory:
-   ```env
-   PORT=5000
-   NODE_ENV=production
-   SESSION_SECRET=a-very-long-random-string
-   ADMIN_USERNAME=your_admin_user
-   ADMIN_PASSWORD=your_secure_password
-   ```
+   Create a `.env` file in the root directory, clone the .env.example file
 
 ## Running the Application
 
