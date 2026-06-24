@@ -1,0 +1,2 @@
+- [SQL Server storage pattern](sql-storage-pattern.md) — storage is chosen at startup via initStorage(); falls back to MemStorage if SQL_SERVER+SQL_DATABASE env vars not set
+- [Auth export](auth-exports.md) — comparePasswords and hashPassword are both exported from server/auth.ts for use in routes/storage

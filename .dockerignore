@@ -1,0 +1,31 @@
+# Keep the image lean — exclude everything not needed for the build
+
+# Version control
+.git
+.gitignore
+
+# Development files
+node_modules
+dist
+.cache
+.local
+.agents
+.upm
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+cookies.txt
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode
+.idea
+*.swp
