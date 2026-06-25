@@ -30,7 +30,7 @@ ENV PORT=5000
 COPY package*.json ./
 
 # Tiszta produkciós telepítés közvetlenül a végleges környezetben
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev&& npm cache clean --force
 
 # Átmásoljuk a builder stage-ben lefordított dist mappát (kliens + szerver kód)
 COPY --chown=appuser:appgroup --from=builder /app/dist ./dist
