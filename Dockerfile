@@ -10,7 +10,7 @@ COPY . .
 
 RUN npm install -g vite esbuild
 
-RUN vite build --outDir dist/public && \
+RUN vite build –outDir dist/server/public && \
     esbuild server/index.ts \
       --platform=node --packages=external --bundle --format=esm --outdir=dist/server --out-extension:.js=.mjs
 
