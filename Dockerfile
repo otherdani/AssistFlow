@@ -26,17 +26,13 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=5000
 
-# Csak a package fájlokat másoljuk át a tiszta installhoz
-COPY package*.json ./
-
-# Tiszta produkciós telepítés közvetlenül a végleges környezetben
-RUN npm install --omit=dev && npm cache clean --force
-
-# Átmásoljuk a builder stage-ben lefordított dist mappát (kliens + szerver kód)
+# Copy build output and installed runtime deps from builder
 COPY --chown=appuser:appgroup --from=builder /app/dist ./dist
+COPY --chown=appuser:appgroup --from=builder /app/node_modules ./node_modules
+COPY --chown=appuser:appgroup --from=builder /app/package.json ./package.json
 
-# A frissen telepített node_modules és a package.json tulajdonjogát is átadjuk az appuser-nek
-RUN chown -R appuser:appgroup /app/node_modules /app/package.json
+# Defensive ownership fix
+RUN chown -R appuser:appgroup /app/node_modules /app/package.json /app/dist
 
 USER appuser
 
