@@ -1,38 +1,39 @@
 # ── Stage 1: Build ─────────────────────────────────────────────────────────
-FROM node:20-slim AS builder
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Copy package files
 COPY package*.json ./
-RUN npm install
 
+# Install ALL dependencies (needed for build)
+RUN npm ci
+
+# Copy source
 COPY . .
 
-RUN npm install -g vite esbuild
+# Install build tools and build
+RUN npm run build
 
-RUN vite build --outDir dist/server/public && \
-    esbuild server/index.ts \
-      --platform=node --packages=external --bundle --format=esm --outdir=dist/server --out-extension:.js=.mjs
+# ── Stage 2: Production image ─────────────────────────────────────────────
+FROM node:20-alpine
 
-# Itt MÁR NEM futtatunk npm prune-t, a builder stage-et tisztán hagyjuk a fordításra!
-
-# ── Stage 2: Production image ─────────────────────────────────────────────────
-FROM node:20-slim AS production
-
-RUN addgroup --system appgroup && adduser --system --ingroup appgroup appuser
+# Create appuser (alpine doesn't have addgroup/adduser, use different syntax)
+RUN addgroup -g 1001 -S appgroup && \
+    adduser -S appuser -u 1001 -G appgroup
 
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=5000
 
-# Copy build output and installed runtime deps from builder
+# Copy ONLY production files from builder
 COPY --chown=appuser:appgroup --from=builder /app/dist ./dist
-COPY --chown=appuser:appgroup --from=builder /app/node_modules ./node_modules
-COPY --chown=appuser:appgroup --from=builder /app/package.json ./package.json
+COPY --chown=appuser:appgroup package*.json ./
 
-# Defensive ownership fix
-RUN chown -R appuser:appgroup /app/node_modules /app/package.json /app/dist
+# Install ONLY production dependencies (no dev deps)
+RUN npm ci --only=production && \
+    npm cache clean --force
 
 USER appuser
 
