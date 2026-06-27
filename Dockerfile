@@ -1,4 +1,4 @@
-# ── Stage 1: Build ───────────────────────────────────────────────────────────
+# ── Stage 1: Build ─────────────────────────────────────────────────────────
 FROM node:20-slim AS builder
 
 WORKDIR /app
@@ -10,7 +10,7 @@ COPY . .
 
 RUN npm install -g vite esbuild
 
-RUN vite build –outDir dist/server/public && \
+RUN vite build --outDir dist/server/public && \
     esbuild server/index.ts \
       --platform=node --packages=external --bundle --format=esm --outdir=dist/server --out-extension:.js=.mjs
 
