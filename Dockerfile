@@ -3,22 +3,19 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
 
-# Install ALL dependencies (needed for build)
-RUN npm ci
+# Itt sima installt használunk, kellenek a dev csomagok a buildhez!
+RUN npm install
 
-# Copy source
 COPY . .
 
-# Install build tools and build
+# Lefordítjuk a kódot (Vite, esbuild)
 RUN npm run build
 
 # ── Stage 2: Production image ─────────────────────────────────────────────
 FROM node:20-alpine
 
-# Create appuser (alpine doesn't have addgroup/adduser, use different syntax)
 RUN addgroup -g 1001 -S appgroup && \
     adduser -S appuser -u 1001 -G appgroup
 
@@ -27,12 +24,12 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=5000
 
-# Copy ONLY production files from builder
+# A chown itt tökéletes, nem csinál felesleges extra réteget!
 COPY --chown=appuser:appgroup --from=builder /app/dist ./dist
 COPY --chown=appuser:appgroup package*.json ./
 
-# Install ONLY production dependencies (no dev deps)
-RUN npm ci --only=production && \
+# Itt is sima installt használunk, de itt már szigorúan kihagyjuk a dev csomagokat
+RUN npm install --omit=dev && \
     npm cache clean --force
 
 USER appuser
